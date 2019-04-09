@@ -1,8 +1,6 @@
 package win.panyong.utils;
 
-/**
- * Created by pan on 2019/1/29 2:52 PM
- */
+
 public class AppInitFunction {
     private static volatile AppInitFunction instance = null;
 

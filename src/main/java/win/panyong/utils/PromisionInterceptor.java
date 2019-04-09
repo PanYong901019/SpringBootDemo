@@ -9,9 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.util.Date;
 
-/**
- * Created by pan on 2019/2/12 11:20 AM
- */
 public class PromisionInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

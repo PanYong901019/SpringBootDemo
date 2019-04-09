@@ -7,9 +7,6 @@ import win.panyong.dao.InsertParameter;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by pan on 2018/11/11 上午12:27
- */
 @Repository("oracleCommonDaoImpl")
 public interface OracleCommonDao {
     @Options(useGeneratedKeys = true)

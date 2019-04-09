@@ -1,8 +1,5 @@
 package win.panyong.dao;
 
-/**
- * Created by pan on 2018/12/18 10:25 AM
- */
 public class InsertParameter {
     private String id;
     private String table;
