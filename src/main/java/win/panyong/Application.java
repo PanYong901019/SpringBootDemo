@@ -29,6 +29,7 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -63,6 +64,7 @@ import java.util.stream.Collectors;
 @ServletComponentScan
 @SpringBootApplication
 @EnableCaching
+@EnableScheduling
 @EnableTransactionManagement
 public class Application {
 
