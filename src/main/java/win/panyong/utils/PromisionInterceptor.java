@@ -7,6 +7,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -19,7 +20,7 @@ public class PromisionInterceptor implements HandlerInterceptor {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             Method method = handlerMethod.getMethod();
             Promision authority = method.getAnnotation(Promision.class);
-            if (authority == null || authority.value().getUserIdList().stream().anyMatch(id -> id.equals(0))) { //此处可以根据实际业务将0改为当前登录的用户id
+            if (authority == null || Arrays.stream(authority.value()).anyMatch(promisionType -> promisionType.getUserIdList().stream().anyMatch(id -> id.equals(0)))) {//此处可以根据实际业务将0改为当前登录的用户id
                 return true;
             } else {
                 String date = DateUtil.getDateString(new Date(), "【yyyy-MM-dd HH:mm:ss】");

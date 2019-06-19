@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Promision {
     /*
-        注解参数根据PromisionType填写,填写什么就说明授什么权
+        注解参数根据PromisionType填写,填写什么就说明授什么权 可以填写多个
      */
-    PromisionType value() default PromisionType.ADMIN;
+    PromisionType[] value() default PromisionType.ADMIN;
 }
