@@ -81,7 +81,7 @@
         <dependency>
             <groupId>com.easyond</groupId>
             <artifactId>utility</artifactId>
-            <version>2.0.4.4</version>
+            <version>2.0.6.1</version>
         </dependency>
         <!--如果有自定义jar包请放入lib目录-->
         <!--<dependency>-->
