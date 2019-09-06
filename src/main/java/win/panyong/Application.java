@@ -185,7 +185,7 @@ class SessionFilter implements Filter {
         String[] whitelist = {"/apiError", "/webError", "/", "/index"};
         String[] rpcApiList = {"/heartbeat", "/checkConfig", "/refreshConfig"};
         String uri = request.getRequestURI().substring(request.getContextPath().length());
-        if (StringUtil.isHave(whitelist, uri) || uri.startsWith("/static") || "/favicon.ico".equals(uri)) {
+        if (StringUtil.isHave(uri, whitelist) || uri.startsWith("/static") || "/favicon.ico".equals(uri)) {
             filterChain.doFilter(request, response);
         } else {
             if (!appCache.getRequestMappingList().contains(uri)) {
@@ -196,7 +196,7 @@ class SessionFilter implements Filter {
                 }};
                 response.setContentType("application/json;charset=UTF-8");
                 response.getWriter().write(ObjectUtil.mapToJsonString(result));
-            } else if (StringUtil.isHave(rpcApiList, uri)) {
+            } else if (StringUtil.isHave(uri, whitelist)) {
                 System.out.println(date + "request：========rmi========|" + request.getMethod() + "|" + uri + "|===|" + ObjectUtil.objectToJsonString(requestParameter) + "|===|" + body + "|");
                 filterChain.doFilter(request, response);
             } else {
