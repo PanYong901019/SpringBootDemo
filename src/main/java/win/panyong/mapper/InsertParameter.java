@@ -1,4 +1,4 @@
-package win.panyong.dao;
+package win.panyong.mapper;
 
 public class InsertParameter {
     private String id;
