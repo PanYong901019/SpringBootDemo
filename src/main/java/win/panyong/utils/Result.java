@@ -21,7 +21,7 @@ public class Result {
         return new Builder().rspCode(1).rspInfo("success");
     }
 
-    public static Builder ok(JSONObject rspResult) {
+    public static Builder ok(Object rspResult) {
         return new Builder().rspCode(1).rspInfo("success").setData(rspResult);
     }
 

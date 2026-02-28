@@ -94,6 +94,16 @@ public class Application {
         return new RedisUtil(database, new JedisPool(jedisPoolConfig, host, port, timeout, StringUtil.invalid(password) ? null : password, database));
     }
 
+    @Bean(name = "jwtUtil")
+    public JwtUtil jwtUtil(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration:7200000}") Long expiration) {
+        return new JwtUtil(secret, expiration);
+    }
+
+    @Bean
+    public PermissionInterceptor permissionInterceptor() {
+        return new PermissionInterceptor();
+    }
+
     @Bean
     public ConnectionFactory activeMQConnectionFactory(@Value("${spring.activemq.broker-url}") String brokerURL) {
         return new ActiveMQConnectionFactory(brokerURL);
@@ -109,47 +119,13 @@ public class Application {
 }
 
 @Configuration
-@MapperScan(basePackages = "win.panyong.mapper.mysql", sqlSessionTemplateRef = "mysqlSqlSessionTemplate")
-class MysqlDataSourceConfig {
-    private static final Logger logger = LoggerFactory.getLogger(Application.class);
-
-    @Bean(name = "mysqlDataSource")
-    @Qualifier("mysqlDataSource")
-    @Primary
-    @ConfigurationProperties(prefix = "datasource.mysql")
-    public DataSource mysqlDataSource() {
-        logger.info("-------------------- mysqlDataSource init ---------------------");
-        return DataSourceBuilder.create().build();
-    }
-
-    @Bean(name = "mysqlSqlSessionFactory")
-    @Primary
-    public SqlSessionFactory mysqlSqlSessionFactory(@Qualifier("mysqlDataSource") DataSource dataSource) throws Exception {
-        SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
-        bean.setDataSource(dataSource);
-        return bean.getObject();
-    }
-
-    @Bean(name = "mysqlTransactionManager")
-    @Primary
-    public DataSourceTransactionManager mysqlTransactionManager(@Qualifier("mysqlDataSource") DataSource dataSource) {
-        return new DataSourceTransactionManager(dataSource);
-    }
-
-    @Bean(name = "mysqlSqlSessionTemplate")
-    @Primary
-    public SqlSessionTemplate mysqlSqlSessionTemplate(@Qualifier("mysqlSqlSessionFactory") SqlSessionFactory sqlSessionFactory) throws Exception {
-        return new SqlSessionTemplate(sqlSessionFactory);
-    }
-}
-
-@Configuration
 @MapperScan(basePackages = "win.panyong.mapper.sqlite", sqlSessionTemplateRef = "sqliteSqlSessionTemplate")
 class SqliteDataSourceConfig {
     private static final Logger logger = LoggerFactory.getLogger(Application.class);
     @Value("${datasource.sqlite.jdbc_url}")
     String sqliteDbFilePath;
 
+    @Primary
     @Bean(name = "sqliteDataSource")
     @Qualifier("sqliteDataSource")
     @ConfigurationProperties(prefix = "datasource.sqlite")
@@ -164,6 +140,7 @@ class SqliteDataSourceConfig {
         return DataSourceBuilder.create().build();
     }
 
+    @Primary
     @Bean(name = "sqliteSqlSessionFactory")
     public SqlSessionFactory sqliteSqlSessionFactory(@Qualifier("sqliteDataSource") DataSource dataSource) throws Exception {
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
@@ -171,16 +148,49 @@ class SqliteDataSourceConfig {
         return bean.getObject();
     }
 
+    @Primary
     @Bean(name = "sqliteTransactionManager")
     public DataSourceTransactionManager sqliteTransactionManager(@Qualifier("sqliteDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 
+    @Primary
     @Bean(name = "sqliteSqlSessionTemplate")
     public SqlSessionTemplate sqliteSqlSessionTemplate(@Qualifier("sqliteSqlSessionFactory") SqlSessionFactory sqlSessionFactory) throws Exception {
         return new SqlSessionTemplate(sqlSessionFactory);
     }
 }
+
+//@Configuration
+//@MapperScan(basePackages = "win.panyong.mapper.mysql", sqlSessionTemplateRef = "mysqlSqlSessionTemplate")
+//class MysqlDataSourceConfig {
+//    private static final Logger logger = LoggerFactory.getLogger(Application.class);
+//
+//    @Bean(name = "mysqlDataSource")
+//    @Qualifier("mysqlDataSource")
+//    @ConfigurationProperties(prefix = "datasource.mysql")
+//    public DataSource mysqlDataSource() {
+//        logger.info("-------------------- mysqlDataSource init ---------------------");
+//        return DataSourceBuilder.create().build();
+//    }
+//
+//    @Bean(name = "mysqlSqlSessionFactory")
+//    public SqlSessionFactory mysqlSqlSessionFactory(@Qualifier("mysqlDataSource") DataSource dataSource) throws Exception {
+//        SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
+//        bean.setDataSource(dataSource);
+//        return bean.getObject();
+//    }
+//
+//    @Bean(name = "mysqlTransactionManager")
+//    public DataSourceTransactionManager mysqlTransactionManager(@Qualifier("mysqlDataSource") DataSource dataSource) {
+//        return new DataSourceTransactionManager(dataSource);
+//    }
+//
+//    @Bean(name = "mysqlSqlSessionTemplate")
+//    public SqlSessionTemplate mysqlSqlSessionTemplate(@Qualifier("mysqlSqlSessionFactory") SqlSessionFactory sqlSessionFactory) throws Exception {
+//        return new SqlSessionTemplate(sqlSessionFactory);
+//    }
+//}
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -234,14 +244,19 @@ class AppRunner implements ApplicationRunner {
 
 @Component
 class MvcConfig implements WebMvcConfigurer {
+    @Value("${page.path}")
+    String pagePath;
+    @Autowired
+    PermissionInterceptor permissionInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new PermissionInterceptor()).addPathPatterns("/**");
+        registry.addInterceptor(permissionInterceptor).addPathPatterns("/**");
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/pages/**").addResourceLocations(pagePath);
         registry.addResourceHandler("/static/**").addResourceLocations("file:" + new ApplicationHome(getClass()) + "/");
     }
 }
@@ -311,8 +326,9 @@ class SessionFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
-        String body = StringUtil.InputStreamToString(request.getInputStream());
-        request.setAttribute("body", body);
+//        String body = StringUtil.InputStreamToString(request.getInputStream());
+//        request.setAttribute("body", body);
+        String body = "{}";
         Map<String, String> requestParameter = request.getParameterMap().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, v -> v.getValue()[0]));
         String date = DateUtil.getDateString(new Date(), "【yyyy-MM-dd HH:mm:ss】");
         String[] whitelist = {};

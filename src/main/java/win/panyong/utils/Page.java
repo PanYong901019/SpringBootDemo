@@ -1,5 +1,7 @@
 package win.panyong.utils;
 
+import com.alibaba.fastjson2.JSONObject;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,11 +14,11 @@ public class Page<T> {
     /**
      * 当前页
      */
-    private int page = 1;
+    private int pageNo = 1;
     /**
      * 每页条数
      */
-    private int size = 10;
+    private int limit = 10;
     /**
      * 共多少条
      */
@@ -28,7 +30,7 @@ public class Page<T> {
     /**
      * 查询条件
      */
-    private Map<String, String> search = new HashMap<>();
+    private JSONObject search = new JSONObject();
     /**
      * 数据
      */
@@ -37,40 +39,40 @@ public class Page<T> {
     public Page() {
     }
 
-    public Page(int page) {
-        this.page = page;
+    public Page(int pageNo) {
+        this.pageNo = pageNo;
     }
 
-    public Page(int page, int size) {
-        this.page = page;
-        this.size = size;
+    public Page(int pageNo, int limit) {
+        this.pageNo = pageNo;
+        this.limit = limit;
     }
 
-    public Page(int page, int size, Map<String, String> search) {
-        this.page = page;
-        this.size = size;
+    public Page(int pageNo, int limit, JSONObject search) {
+        this.pageNo = pageNo;
+        this.limit = limit;
         this.search = search;
     }
 
-    public int getPage() {
-        return page;
+    public int getPageNo() {
+        return pageNo;
     }
 
-    public Page<T> setPage(int page) {
-        this.page = page;
+    public Page<T> setPage(int pageNo) {
+        this.pageNo = pageNo;
         return this;
     }
 
     public int getSince() {
-        return (page - 1) * size;
+        return (pageNo - 1) * limit;
     }
 
-    public int getSize() {
-        return size;
+    public int getLimit() {
+        return limit;
     }
 
-    public Page<T> setSize(int size) {
-        this.size = size;
+    public Page<T> setLimit(int limit) {
+        this.limit = limit;
         return this;
     }
 
@@ -80,7 +82,7 @@ public class Page<T> {
 
     public Page<T> setTotalCount(int totalCount) {
         this.totalCount = totalCount;
-        this.totalPage = (totalCount + this.size - 1) / this.size;
+        this.totalPage = (totalCount + this.limit - 1) / this.limit;
         return this;
     }
 
@@ -88,11 +90,11 @@ public class Page<T> {
         return totalPage;
     }
 
-    public Map<String, String> getSearch() {
+    public JSONObject getSearch() {
         return search;
     }
 
-    public Page<T> setSearch(Map<String, String> search) {
+    public Page<T> setSearch(JSONObject search) {
         this.search = search;
         return this;
     }
