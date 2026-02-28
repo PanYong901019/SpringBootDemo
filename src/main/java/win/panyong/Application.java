@@ -61,6 +61,7 @@ import win.panyong.utils.authority.PermissionInterceptor;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
@@ -134,8 +135,14 @@ class SqliteDataSourceConfig {
         File targetFile = new File(sqliteDbFilePath.split(":")[2]);
         if (!targetFile.exists()) {
             logger.info("-------------- SqliteDB file not found now init ---------------");
-            File sourceFile = AppCache.getResource("localDB.db").getFile();
-            Files.copy(sourceFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("localDB.db")) {
+                if (inputStream != null) {
+                    Files.copy(inputStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    logger.info("-------------- SqliteDB file copied successfully ---------------");
+                } else {
+                    throw new IOException("Cannot find localDB.db in classpath");
+                }
+            }
         }
         return DataSourceBuilder.create().build();
     }

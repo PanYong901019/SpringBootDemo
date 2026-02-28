@@ -1,22 +1,19 @@
+FROM openanolis/anolisos:latest
+
 LABEL maintainer="panyong <pan_panyong@sina.com>"
 LABEL description="Spring Boot Application"
 
-FROM openanolis/anolisos:latest
-RUN dnf update -y && dnf install -y java-25-openjdk tzdata iproute net-tools curl && dnf clean all && rm -rf /var/cache/dnf
+RUN dnf update -y && dnf install -y tzdata curl wget tar && dnf clean all && rm -rf /var/cache/dnf
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo "Asia/Shanghai" > /etc/timezone
+RUN mkdir -p /tmp/java-download/ && wget https://download.oracle.com/java/25/latest/jdk-25_linux-x64_bin.tar.gz -O /tmp/java-download/java.tar.gz && tar -xzf /tmp/java-download/java.tar.gz -C /tmp/java-download/ && mv /tmp/java-download/jdk* /opt/java && rm -rf /tmp/java-download
 
-ENV JAVA_HOME=/usr/lib/jvm/java-25-openjdk
+ENV JAVA_HOME=/opt/java
 ENV PATH=$JAVA_HOME/bin:$PATH
 ENV APP_HOME=/app
 ENV SERVER_PORT=1205
 
 WORKDIR $APP_HOME
 COPY target/*.jar app.jar
-
-# 创建非 root 用户运行应用
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-RUN chown appuser:appuser app.jar
-USER appuser
 
 # 暴露端口
 EXPOSE $SERVER_PORT
